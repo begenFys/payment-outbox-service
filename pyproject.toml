@@ -42,8 +42,12 @@ select = [
     "I",
     # flake8-bugbear
     "B",
+    # pep8-naming
+    "N",
     # pyugrade
-    "UP"
+    "UP",
+    # pep8-naming
+    "N"
 ]
 
 [tool.mypy]

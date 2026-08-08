@@ -44,7 +44,7 @@ src/
 ├── main.py            # FastAPI-приложение
 ├── consumer.py        # entrypoint: FastStream
 ├── relay.py           # запуск outbox relay
-├── config.py          # pydantic-settings
+├── settings.py          # pydantic-settings
 ├── database.py        # engine, session_maker, Base
 ├── enums.py           # PaymentStatus, Currency, OutboxStatus
 ├── models.py          # Payment, OutboxMessage

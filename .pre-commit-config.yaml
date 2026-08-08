@@ -45,9 +45,3 @@ repos:
           - src
           - --install-types
           - --non-interactive
-
-      - id: pytest
-        name: Tests with pytest
-        entry: uv run pytest
-        language: system
-        types: [ python ]

@@ -14,7 +14,7 @@ services:
       - basis-db-data:/var/lib/postgresql
     restart: &restart unless-stopped
     ports:
-      - "127.0.0.1:${POSTGRES_PORT}:5432"
+      - "127.0.0.1:${POSTGRES_HOST_PORT}:5432"
     healthcheck:
       test: [ "CMD-SHELL", "PGUSER=$${POSTGRES_USER} PGDATABASE=$${POSTGRES_DB} pg_isready" ]
       start_period: 10s
