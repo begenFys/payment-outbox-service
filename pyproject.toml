@@ -1,0 +1,57 @@
+[project]
+name = "basis-payment-service"
+version = "0.1.0"
+description = "Платежный сервис"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.19.0",
+    "asyncpg>=0.31.0",
+    "fastapi>=0.141.1",
+    "faststream[rabbit]>=0.7.4",
+    "httpx>=0.28.1",
+    "pydantic-settings>=2.15.0",
+    "sqlalchemy>=2.0.51",
+    "uvicorn>=0.52.1",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.0",
+    "pre-commit>=4.6.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "respx>=0.23.1",
+    "ruff>=0.16.2",
+    "testcontainers[postgres]>=4.15.0",
+]
+
+[tool.ruff]
+line-length = 80
+src = ["src/"]
+extend-exclude = ["migrations"]
+force-exclude = true
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # pyflakes
+    "F",
+    # isort
+    "I",
+    # flake8-bugbear
+    "B",
+    # pyugrade
+    "UP"
+]
+
+[tool.mypy]
+strict = true
+pretty = true
+show_error_codes = true
+exclude = ["src/migrations/"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = ["integration: требует запущенных PostgreSQL и RabbitMQ"]
