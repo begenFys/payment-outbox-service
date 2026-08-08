@@ -36,6 +36,19 @@ check-precommit:
 .PHONY: check-all
 check-all: lint check-types test
 
+.PHONY: generate-migration
+generate-migration:
+	@read -p "Описание миграции: " message; \
+	uv run alembic revision --autogenerate -m "$$message"
+
+.PHONY: migrate
+migrate:
+	uv run alembic upgrade head
+
+.PHONY: rollback
+rollback:
+	uv run alembic downgrade -1
+
 # Docker
 # -------------
 
