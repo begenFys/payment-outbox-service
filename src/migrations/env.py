@@ -32,6 +32,10 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+def get_url() -> str:
+    return config.get_main_option("sqlalchemy.url") or settings.postgres_url
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -45,7 +49,7 @@ def run_migrations_offline() -> None:
 
     """
     context.configure(
-        url=str(settings.postgres_url),
+        url=get_url(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -74,7 +78,7 @@ async def run_migrations_online() -> None:
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    connectable = create_async_engine(str(settings.postgres_url))
+    connectable = create_async_engine(get_url())
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
