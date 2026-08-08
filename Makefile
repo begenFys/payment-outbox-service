@@ -35,3 +35,18 @@ check-precommit:
 
 .PHONY: check-all
 check-all: lint check-types test
+
+# Docker
+# -------------
+
+.PHONY: dc-up
+dc-up:
+	docker compose up -d
+
+.PHONY: dc-down
+dc-down:
+	docker compose down
+
+.PHONY: dc-logs
+dc-logs:
+	docker compose logs -f

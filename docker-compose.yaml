@@ -1,0 +1,42 @@
+volumes:
+  basis-db-data:
+  basis-rabbitmq-data:
+
+services:
+  basis-db:
+    image: postgres:18
+    container_name: basis-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - basis-db-data:/var/lib/postgresql
+    restart: &restart unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "PGUSER=$${POSTGRES_USER} PGDATABASE=$${POSTGRES_DB} pg_isready" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  basis-rabbitmq:
+    image: rabbitmq:4-management
+    container_name: basis-rabbitmq
+    volumes:
+      - basis-rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "127.0.0.1:${RABBITMQ_HOST_PORT}:5672"
+      - "127.0.0.1:${RABBITMQ_ADMIN_HOST_PORT}:15672"
+    restart: *restart
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics check_port_connectivity" ]
+      start_period: 15s
+      interval: 10s
+      timeout: 5s
+      retries: 3
