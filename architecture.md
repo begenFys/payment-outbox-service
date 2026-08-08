@@ -29,9 +29,9 @@ payload (JSONB) — данные сообщения
 event_type (ENUM) — тип события, обозначающий в какую очередь relay направит сообщение
 status (ENUM) — статус сообщения (pending, sent)
 retry_count (INT) — кол-во повторов отправки
-last_error (TEXT) — текст последней ошибки
-next_retry_at (TIMESTAMPTZ) — дата и время следующего повтора
-sent_at (TIMESTAMPTZ) — дата и время отправки
+last_error (TEXT | NULL) — текст последней ошибки
+next_retry_at (TIMESTAMPTZ | NULL) — дата и время следующего повтора
+sent_at (TIMESTAMPTZ | NULL) — дата и время отправки
 created_at (TIMESTAMPTZ) — дата и время создания сообщения
 
 Indexes:
