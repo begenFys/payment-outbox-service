@@ -3,8 +3,12 @@ import os
 import pytest
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from src.dependencies import get_session
+from src.main import app
+from src.settings import settings
 from testcontainers.community.postgres import PostgresContainer
 
 
@@ -44,6 +48,26 @@ async def session(engine):
     maker = async_sessionmaker(engine, expire_on_commit=False)
     async with maker() as session:
         yield session
+
+
+@pytest.fixture
+async def client(engine, session):
+    maker = async_sessionmaker(engine, expire_on_commit=False)
+
+    async def override_get_session():
+        async with maker() as test_session:
+            yield test_session
+
+    app.dependency_overrides[get_session] = override_get_session
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"X-API-Key": settings.api_key.get_secret_value()},
+    ) as test_client:
+        yield test_client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture(autouse=True)
