@@ -26,7 +26,7 @@ processed_at (TIMESTAMPTZ | NULL) — дата и время обработки 
 Fields:
 id (UUID) — ID сообщения
 payload (JSONB) — данные сообщения
-event_type (ENUM) — тип события, обозначающий в какую очередь relay направит сообщение
+event_type (ENUM) — тип события; его значение relay использует как routing key
 status (ENUM) — статус сообщения (pending, sent)
 retry_count (INT) — кол-во повторов отправки
 last_error (TEXT | NULL) — текст последней ошибки
@@ -100,7 +100,7 @@ Makefile
 
 ## Схема очередей
 Один direct exchange и три очереди.
-* payments.new — основная, на неё подписан консьюмер. Relay публикует сюда, routing key определяется значением event_type.
+* payments.new — основная, на неё подписан консьюмер. Relay публикует сюда с routing key, равным значению event_type.
 * payments.retry — с x-message-ttl = 5000 и dead-letter-exchange обратно на payments.new. Сообщение просто лежит пять секунд.
 * payments.dlq — конечная точка, отсюда ничего не возвращается.
 

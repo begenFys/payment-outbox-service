@@ -9,6 +9,10 @@ sync:
 start:
 	uv run uvicorn src.main:app --reload
 
+.PHONY: start-relay
+start-relay:
+	uv run python -m src.relay
+
 # Lint & Format
 # -------------
 

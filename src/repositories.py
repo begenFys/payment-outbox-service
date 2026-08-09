@@ -1,12 +1,15 @@
 import uuid
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.enums import Currency, OutboxEventType
+from src.enums import Currency, OutboxEventType, OutboxStatus
 from src.models import OutboxMessage, Payment
+from src.settings import settings
 
 
 class PaymentRepository:
@@ -47,6 +50,9 @@ class PaymentRepository:
         return result.scalar_one_or_none()
 
 
+MAX_BACKOFF_SECONDS = 10 * 60
+
+
 class OutboxMessageRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -63,3 +69,33 @@ class OutboxMessageRepository:
         )
         self.session.add(outbox_message)
         return outbox_message
+
+    async def get_pending_batch(
+        self,
+        batch_size: int,
+    ) -> Sequence[OutboxMessage]:
+        stmt = (
+            select(OutboxMessage)
+            .where(OutboxMessage.status == OutboxStatus.PENDING)
+            .where(OutboxMessage.next_retry_at <= func.now())
+            .order_by(OutboxMessage.next_retry_at)
+            .limit(batch_size)
+            .with_for_update(skip_locked=True)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    def mark_sent(self, message: OutboxMessage) -> None:
+        message.status = OutboxStatus.SENT
+        message.sent_at = datetime.now(UTC)
+
+    def mark_failed(self, message: OutboxMessage, error: Exception) -> None:
+        message.retry_count += 1
+        message.last_error = str(error)[:500]
+
+        delay = min(
+            settings.outbox_backoff_base_seconds
+            * 2 ** (message.retry_count - 1),
+            MAX_BACKOFF_SECONDS,
+        )
+        message.next_retry_at = datetime.now(UTC) + timedelta(seconds=delay)

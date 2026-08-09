@@ -10,7 +10,11 @@ from src.settings import settings
 
 RABBIT_BROKER: RabbitBroker = RabbitBroker(
     url=settings.rabbitmq_url,
-    default_channel=Channel(prefetch_count=settings.rabbitmq_prefetch_count),
+    default_channel=Channel(
+        prefetch_count=settings.rabbitmq_prefetch_count,
+        publisher_confirms=True,
+        on_return_raises=True,
+    ),
 )
 
 BASIS_DIRECT = RabbitExchange(
