@@ -7,7 +7,7 @@ class OutboxStatus(StrEnum):
 
 
 class OutboxEventType(StrEnum):
-    PAYMENT_NEW = "payment.new"
+    PAYMENT_NEW = "payments.new"
 
 
 class PaymentStatus(StrEnum):

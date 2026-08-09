@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     rabbitmq_default_user: str
     rabbitmq_default_pass: str
     rabbitmq_prefetch_count: int = Field(10)
+    rabbitmq_message_ttl: int = Field(5 * 1000)
 
     @property
     def postgres_url(self) -> str:

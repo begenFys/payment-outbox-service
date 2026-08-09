@@ -25,7 +25,7 @@ def upgrade() -> None:
         'outbox_messages',
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('payload', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
-        sa.Column('event_type', sa.Enum('payment.new', name='outbox_event_type_enum'), nullable=False),
+        sa.Column('event_type', sa.Enum('payments.new', name='outbox_event_type_enum'), nullable=False),
         sa.Column('status', sa.Enum('pending', 'sent', name='outbox_status_enum'), nullable=False),
         sa.Column('retry_count', sa.Integer(), nullable=False),
         sa.Column('last_error', sa.Text(), nullable=True),
