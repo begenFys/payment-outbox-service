@@ -56,3 +56,10 @@ class PaymentDetailResponse(BaseModel):
 
 class PaymentNewMessage(BaseModel):
     payment_id: uuid.UUID
+
+
+class WebhookPayload(BaseModel):
+    payment_id: uuid.UUID
+    status: PaymentStatus
+    amount: Decimal
+    currency: Currency

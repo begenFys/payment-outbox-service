@@ -67,6 +67,24 @@ class PaymentRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def record_webhook_result(
+        self,
+        payment_id: uuid.UUID,
+        result_attempts: int,
+        error: str | None,
+    ) -> None:
+        stmt = (
+            update(Payment)
+            .where(Payment.id == payment_id)
+            .values(
+                webhook_attempts=result_attempts,
+                webhook_last_error=error,
+                webhook_delivered_at=None if error else func.now(),
+            )
+            .execution_options(synchronize_session=False)
+        )
+        await self.session.execute(stmt)
+
 
 MAX_BACKOFF_SECONDS = 10 * 60
 

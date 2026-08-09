@@ -12,6 +12,7 @@ from src.schemas import (
     PaymentNewMessage,
 )
 from src.services.gateway import PaymentGateway
+from src.services.webhook import WebhookClient
 
 
 class PaymentService:
@@ -61,6 +62,7 @@ class PaymentService:
 async def process_payment(
     payment_id: uuid.UUID,
     gateway: PaymentGateway,
+    webhook: WebhookClient,
     session_maker: async_sessionmaker[AsyncSession],
 ) -> PaymentStatus | None:
     async with session_maker() as session:
@@ -88,4 +90,16 @@ async def process_payment(
         return None
 
     logger.info(f"Платёж {payment_id} обработан: {status}")
+
+    payment.status = status
+    result = await webhook.deliver(payment)
+
+    async with session_maker() as session:
+        await PaymentRepository(session).record_webhook_result(
+            payment_id,
+            result.attempts,
+            result.error,
+        )
+        await session.commit()
+
     return status
