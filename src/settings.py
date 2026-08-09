@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     outbox_poll_interval_seconds: int = Field(5, ge=1)
     outbox_backoff_base_seconds: int = Field(5, ge=1)
 
+    gateway_min_delay_seconds: float = Field(2.0, ge=0)
+    gateway_max_delay_seconds: float = Field(5.0, ge=0)
+    gateway_success_rate: float = Field(0.9, ge=0, le=1)
+
     pool_size: int = Field(8)
     max_overflow: int = Field(2)
 
