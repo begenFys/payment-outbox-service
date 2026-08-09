@@ -40,3 +40,62 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  basis-migrate:
+    build: .
+    container_name: basis-migrate
+    command: uv run alembic upgrade head
+    env_file: .env
+    environment: &app_env
+      POSTGRES_HOST: basis-db
+      POSTGRES_HOST_PORT: 5432
+      RABBITMQ_HOST: basis-rabbitmq
+      RABBITMQ_HOST_PORT: 5672
+    depends_on:
+      basis-db:
+        condition: service_healthy
+    restart: "no"
+
+  basis-api:
+    build: .
+    container_name: basis-api
+    env_file: .env
+    environment: *app_env
+    ports:
+      - "127.0.0.1:${BACKEND_PORT}:8000"
+    depends_on:
+      basis-migrate:
+        condition: service_completed_successfully
+    restart: *restart
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/')"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  basis-consumer:
+    build: .
+    container_name: basis-consumer
+    command: uv run python -m src.consumer
+    env_file: .env
+    environment: *app_env
+    depends_on:
+      basis-migrate:
+        condition: service_completed_successfully
+      basis-rabbitmq:
+        condition: service_healthy
+    restart: *restart
+
+  basis-relay:
+    build: .
+    container_name: basis-relay
+    command: uv run python -m src.relay
+    env_file: .env
+    environment: *app_env
+    depends_on:
+      basis-migrate:
+        condition: service_completed_successfully
+      basis-rabbitmq:
+        condition: service_healthy
+    restart: *restart

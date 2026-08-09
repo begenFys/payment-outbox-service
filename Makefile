@@ -76,3 +76,7 @@ dc-down:
 .PHONY: dc-logs
 dc-logs:
 	docker compose logs -f
+
+.PHONY: dc-build
+dc-build:
+	docker compose build
