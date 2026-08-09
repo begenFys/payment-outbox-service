@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     api_key: SecretStr
 
+    log_level: str = Field("INFO")
+
     outbox_batch_size: int = Field(100, ge=1)
     outbox_poll_interval_seconds: int = Field(5, ge=1)
     outbox_backoff_base_seconds: int = Field(5, ge=1)

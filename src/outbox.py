@@ -1,4 +1,5 @@
 from faststream.rabbit import RabbitBroker
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.broker.setup import BASIS_DIRECT
@@ -21,7 +22,14 @@ async def publish_pending_messages(
                 persist=True,
                 mandatory=True,
             )
+        # Ошибка одной записи не должна останавливать relay: помечаем её
+        # неудачной, следующий проход возьмёт её снова.
         except Exception as exc:
+            logger.warning(
+                "Не удалось опубликовать сообщение {}: {}",
+                message.id,
+                exc,
+            )
             repository.mark_failed(message, exc)
         else:
             repository.mark_sent(message)
