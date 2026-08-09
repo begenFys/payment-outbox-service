@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,3 +51,6 @@ class PaymentService:
             if existing_payment:
                 return existing_payment
             raise
+
+    async def get_payment(self, payment_id: uuid.UUID) -> Payment | None:
+        return await self.payment_repository.get_by_id(payment_id)

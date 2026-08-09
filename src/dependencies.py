@@ -1,8 +1,7 @@
 import secrets
 from collections.abc import AsyncGenerator
-from http import HTTPStatus
 
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +20,7 @@ async def require_api_key(
     ),
 ) -> None:
     if not api_key:
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     if not secrets.compare_digest(api_key, settings.api_key.get_secret_value()):
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
