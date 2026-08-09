@@ -22,14 +22,14 @@ class Settings(BaseSettings):
     gateway_max_delay_seconds: float = Field(5.0, ge=0)
     gateway_success_rate: float = Field(0.9, ge=0, le=1)
 
+    webhook_timeout_seconds: float = Field(10.0, gt=0)
+    webhook_max_attempts: int = Field(3, ge=1)
+    webhook_backoff_base_seconds: float = Field(1.0, ge=0)
+
     consumer_max_attempts: int = Field(3, ge=1)
 
     pool_size: int = Field(8)
     max_overflow: int = Field(2)
-
-    webhook_timeout_seconds: float = Field(10.0, gt=0)
-    webhook_max_attempts: int = Field(3, ge=1)
-    webhook_backoff_base_seconds: float = Field(1.0, ge=0)
 
     postgres_host: str
     postgres_host_port: int
