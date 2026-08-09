@@ -51,7 +51,7 @@ async def session(engine):
 
 
 @pytest.fixture
-async def client(engine, session):
+async def _session_override(engine, session):
     maker = async_sessionmaker(engine, expire_on_commit=False)
 
     async def override_get_session():
@@ -59,15 +59,38 @@ async def client(engine, session):
             yield test_session
 
     app.dependency_overrides[get_session] = override_get_session
+    yield
+    app.dependency_overrides.clear()
 
+
+@pytest.fixture
+async def anonymous_client(_session_override):
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test",
-        headers={"X-API-Key": settings.api_key.get_secret_value()},
     ) as test_client:
         yield test_client
 
-    app.dependency_overrides.clear()
+
+@pytest.fixture
+async def client(anonymous_client):
+    anonymous_client.headers["X-API-Key"] = settings.api_key.get_secret_value()
+    return anonymous_client
+
+
+@pytest.fixture
+def payment_body() -> dict[str, str]:
+    return {
+        "amount": "100.50",
+        "currency": "RUB",
+        "description": "test",
+        "webhook_url": "https://example.com/webhook",
+    }
+
+
+@pytest.fixture
+def headers() -> dict[str, str]:
+    return {"Idempotency-Key": "key-1"}
 
 
 @pytest.fixture(autouse=True)
