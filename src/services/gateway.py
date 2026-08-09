@@ -4,12 +4,16 @@ from decimal import Decimal
 
 from loguru import logger
 
-from src.enums import PaymentStatus
+from src.enums import Currency, PaymentStatus
 from src.settings import settings
 
 
 class PaymentGateway:
-    async def process(self, amount: Decimal) -> PaymentStatus:
+    async def process(
+        self,
+        amount: Decimal,
+        currency: Currency,
+    ) -> PaymentStatus:
         delay = random.uniform(
             settings.gateway_min_delay_seconds,
             settings.gateway_max_delay_seconds,
@@ -22,7 +26,7 @@ class PaymentGateway:
             else PaymentStatus.FAILED
         )
         logger.info(
-            f"Шлюз обработал платёж на сумму {amount} "
+            f"Шлюз обработал платёж на сумму {amount}{currency} "
             f"за {delay:.2f}c, результат {status}",
         )
         return status

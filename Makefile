@@ -13,6 +13,11 @@ start:
 start-relay:
 	uv run python -m src.relay
 
+.PHONY: start-consumer
+start-consumer:
+	uv run python -m src.consumer
+
+
 # Lint & Format
 # -------------
 

@@ -4,10 +4,10 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.enums import Currency, OutboxEventType, OutboxStatus
+from src.enums import Currency, OutboxEventType, OutboxStatus, PaymentStatus
 from src.models import OutboxMessage, Payment
 from src.settings import settings
 
@@ -46,6 +46,24 @@ class PaymentRepository:
         idempotency_key: str,
     ) -> Payment | None:
         stmt = select(Payment).where(Payment.idempotency_key == idempotency_key)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def mark_processed(
+        self,
+        payment_id: uuid.UUID,
+        status: PaymentStatus,
+    ) -> uuid.UUID | None:
+        stmt = (
+            update(Payment)
+            .where(
+                Payment.id == payment_id,
+                Payment.status == PaymentStatus.PENDING,
+            )
+            .values(status=status, processed_at=func.now())
+            .returning(Payment.id)
+            .execution_options(synchronize_session=False)
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

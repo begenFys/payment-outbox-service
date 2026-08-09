@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     gateway_max_delay_seconds: float = Field(5.0, ge=0)
     gateway_success_rate: float = Field(0.9, ge=0, le=1)
 
+    consumer_max_attempts: int = Field(3, ge=1)
+
     pool_size: int = Field(8)
     max_overflow: int = Field(2)
 
