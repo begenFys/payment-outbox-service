@@ -17,8 +17,8 @@ RABBIT_BROKER: RabbitBroker = RabbitBroker(
     ),
 )
 
-BASIS_DIRECT = RabbitExchange(
-    name="basis.direct",
+PAYMENTS_DIRECT = RabbitExchange(
+    name="payments.direct",
     type=ExchangeType.DIRECT,
     durable=True,
     auto_delete=False,
@@ -32,7 +32,7 @@ PAYMENT_NEW_QUEUE = RabbitQueue(
     name=PAYMENT_NEW_NAME,
     durable=True,
     arguments={
-        "x-dead-letter-exchange": BASIS_DIRECT.name,
+        "x-dead-letter-exchange": PAYMENTS_DIRECT.name,
         "x-dead-letter-routing-key": PAYMENT_RETRY_NAME,
     },
 )
@@ -42,7 +42,7 @@ PAYMENT_RETRY_QUEUE = RabbitQueue(
     durable=True,
     arguments={
         "x-message-ttl": settings.rabbitmq_message_ttl,
-        "x-dead-letter-exchange": BASIS_DIRECT.name,
+        "x-dead-letter-exchange": PAYMENTS_DIRECT.name,
         "x-dead-letter-routing-key": PAYMENT_NEW_NAME,
     },
 )
@@ -56,7 +56,7 @@ QUEUES = (PAYMENT_NEW_QUEUE, PAYMENT_RETRY_QUEUE, PAYMENT_DLQ_QUEUE)
 
 
 async def declare_topology(broker: RabbitBroker) -> None:
-    exchange = await broker.declare_exchange(BASIS_DIRECT)
+    exchange = await broker.declare_exchange(PAYMENTS_DIRECT)
     for queue in QUEUES:
         declared_queue = await broker.declare_queue(queue)
         await declared_queue.bind(exchange, routing_key=queue.name)

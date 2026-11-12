@@ -1,6 +1,6 @@
-# Basis Payment Service
+# Payment Outbox Service
 
-[![CI](https://github.com/begenFys/basis-payment-service/actions/workflows/ci.yml/badge.svg)](https://github.com/begenFys/basis-payment-service/actions/workflows/ci.yml)
+[![CI](https://github.com/begenFys/payment-outbox-service/actions/workflows/ci.yml/badge.svg)](https://github.com/begenFys/payment-outbox-service/actions/workflows/ci.yml)
 
 English | [Русский](README.ru.md)
 
@@ -31,7 +31,7 @@ make dc-up
 ```
 
 This starts five services: PostgreSQL, RabbitMQ, the API, the consumer and the
-outbox relay. Migrations are applied by a separate `basis-migrate` container;
+outbox relay. Migrations are applied by a separate `payments-migrate` container;
 the other services wait for it to finish.
 
 - API: http://127.0.0.1:8000, Swagger UI at `/docs`

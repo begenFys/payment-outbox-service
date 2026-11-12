@@ -1,6 +1,6 @@
-# Basis Payment Service
+# Payment Outbox Service
 
-[![CI](https://github.com/begenFys/basis-payment-service/actions/workflows/ci.yml/badge.svg)](https://github.com/begenFys/basis-payment-service/actions/workflows/ci.yml)
+[![CI](https://github.com/begenFys/payment-outbox-service/actions/workflows/ci.yml/badge.svg)](https://github.com/begenFys/payment-outbox-service/actions/workflows/ci.yml)
 
 [English](README.md) | Русский
 
@@ -29,7 +29,7 @@ make dc-up
 ```
 
 Поднимаются пять сервисов: PostgreSQL, RabbitMQ, API, консьюмер и outbox relay.
-Миграции накатывает отдельный контейнер `basis-migrate`, остальные ждут его
+Миграции накатывает отдельный контейнер `payments-migrate`, остальные ждут его
 завершения.
 
 - API — http://127.0.0.1:8000, Swagger на `/docs`

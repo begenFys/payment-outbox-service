@@ -1,5 +1,5 @@
 [project]
-name = "basis-payment-service"
+name = "payment-outbox-service"
 version = "0.1.0"
 description = "Async payment processing service: idempotent API, transactional outbox, RabbitMQ retries and DLQ"
 readme = "README.md"

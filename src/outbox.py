@@ -2,7 +2,7 @@ from faststream.rabbit import RabbitBroker
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.broker.setup import BASIS_DIRECT
+from src.broker.setup import PAYMENTS_DIRECT
 from src.repositories import OutboxMessageRepository
 from src.settings import settings
 
@@ -18,7 +18,7 @@ async def publish_pending_messages(
             await broker.publish(
                 message.payload,
                 routing_key=message.event_type,
-                exchange=BASIS_DIRECT,
+                exchange=PAYMENTS_DIRECT,
                 persist=True,
                 mandatory=True,
             )
