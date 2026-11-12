@@ -44,7 +44,7 @@ src/
 ├── main.py            # FastAPI-приложение
 ├── consumer.py        # entrypoint: FastStream
 ├── relay.py           # запуск outbox relay
-├── settings.py          # pydantic-settings
+├── settings.py        # pydantic-settings
 ├── database.py        # engine, session_maker, Base
 ├── enums.py           # PaymentStatus, Currency, OutboxStatus
 ├── models.py          # Payment, OutboxMessage
@@ -66,7 +66,8 @@ tests/
 ├── test_payments_api.py
 ├── test_idempotency.py
 ├── test_outbox_relay.py
-└── test_consumer.py
+├── test_consumer.py
+└── test_webhook.py
 .env
 docker-compose.yaml
 README.md
@@ -104,10 +105,10 @@ Makefile
 * payments.retry — с x-message-ttl = 5000 и dead-letter-exchange обратно на payments.new. Сообщение просто лежит пять секунд.
 * payments.dlq — конечная точка, отсюда ничего не возвращается.
 
-## Сознательные ограничения в рамках тестового
-Тело запроса при повторном Idempotency-Key не сравнивается. Если клиент пришлёт тот же ключ с другой суммой, он получит первый платёж. Правильнее хранить хеш тела и отдавать 409 при несовпадении — не стал делать, потому что ТЗ этого не требует.
+## Сознательные ограничения
+Тело запроса при повторном Idempotency-Key не сравнивается. Если клиент пришлёт тот же ключ с другой суммой, он получит первый платёж. Правильнее хранить хеш тела и отдавать 409 при несовпадении — в текущий объём это не вошло.
 
-Нет ручки для повторной отправки недоставленных webhook'ов. Данные для неё есть — webhook_attempts, webhook_delivered_at, webhook_last_error. Добавить можно за полчаса, но в рамках задания это выходит за рамки.
+Нет ручки для повторной отправки недоставленных webhook'ов. Данные для неё есть — webhook_attempts, webhook_delivered_at, webhook_last_error. Добавить можно за полчаса, в текущий объём не вошло.
 
 Retry-очередь одна, TTL фиксированный. Экспоненциальная задержка потребовала бы трёх очередей с разными TTL — механика ровно та же, объём больше.
 
