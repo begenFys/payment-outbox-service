@@ -5,9 +5,9 @@ from faststream.rabbit.annotations import RabbitMessage
 from loguru import logger
 
 from src.broker.setup import (
-    BASIS_DIRECT,
     PAYMENT_DLQ_NAME,
     PAYMENT_NEW_QUEUE,
+    PAYMENTS_DIRECT,
     RABBIT_BROKER,
 )
 from src.database import async_session_maker
@@ -42,7 +42,7 @@ async def handle_payment_message(
         await RABBIT_BROKER.publish(
             raw_body,
             routing_key=PAYMENT_DLQ_NAME,
-            exchange=BASIS_DIRECT,
+            exchange=PAYMENTS_DIRECT,
             persist=True,
             mandatory=True,
         )
@@ -58,7 +58,7 @@ async def handle_payment_message(
 
 @RABBIT_BROKER.subscriber(
     PAYMENT_NEW_QUEUE,
-    exchange=BASIS_DIRECT,
+    exchange=PAYMENTS_DIRECT,
     ack_policy=AckPolicy.REJECT_ON_ERROR,
 )
 async def handle_payment_new(

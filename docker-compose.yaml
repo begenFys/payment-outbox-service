@@ -1,17 +1,17 @@
 volumes:
-  basis-db-data:
-  basis-rabbitmq-data:
+  payments-db-data:
+  payments-rabbitmq-data:
 
 services:
-  basis-db:
+  payments-db:
     image: postgres:18
-    container_name: basis-db
+    container_name: payments-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - basis-db-data:/var/lib/postgresql
+      - payments-db-data:/var/lib/postgresql
     restart: &restart unless-stopped
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT}:5432"
@@ -22,11 +22,11 @@ services:
       timeout: 5s
       retries: 3
 
-  basis-rabbitmq:
+  payments-rabbitmq:
     image: rabbitmq:4-management
-    container_name: basis-rabbitmq
+    container_name: payments-rabbitmq
     volumes:
-      - basis-rabbitmq-data:/var/lib/rabbitmq
+      - payments-rabbitmq-data:/var/lib/rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
@@ -41,30 +41,30 @@ services:
       timeout: 5s
       retries: 3
 
-  basis-migrate:
+  payments-migrate:
     build: .
-    container_name: basis-migrate
+    container_name: payments-migrate
     command: uv run alembic upgrade head
     env_file: .env
     environment: &app_env
-      POSTGRES_HOST: basis-db
+      POSTGRES_HOST: payments-db
       POSTGRES_HOST_PORT: 5432
-      RABBITMQ_HOST: basis-rabbitmq
+      RABBITMQ_HOST: payments-rabbitmq
       RABBITMQ_HOST_PORT: 5672
     depends_on:
-      basis-db:
+      payments-db:
         condition: service_healthy
     restart: "no"
 
-  basis-api:
+  payments-api:
     build: .
-    container_name: basis-api
+    container_name: payments-api
     env_file: .env
     environment: *app_env
     ports:
       - "127.0.0.1:${BACKEND_PORT}:8000"
     depends_on:
-      basis-migrate:
+      payments-migrate:
         condition: service_completed_successfully
     restart: *restart
     healthcheck:
@@ -74,28 +74,28 @@ services:
       timeout: 5s
       retries: 3
 
-  basis-consumer:
+  payments-consumer:
     build: .
-    container_name: basis-consumer
+    container_name: payments-consumer
     command: uv run python -m src.consumer
     env_file: .env
     environment: *app_env
     depends_on:
-      basis-migrate:
+      payments-migrate:
         condition: service_completed_successfully
-      basis-rabbitmq:
+      payments-rabbitmq:
         condition: service_healthy
     restart: *restart
 
-  basis-relay:
+  payments-relay:
     build: .
-    container_name: basis-relay
+    container_name: payments-relay
     command: uv run python -m src.relay
     env_file: .env
     environment: *app_env
     depends_on:
-      basis-migrate:
+      payments-migrate:
         condition: service_completed_successfully
-      basis-rabbitmq:
+      payments-rabbitmq:
         condition: service_healthy
     restart: *restart
